@@ -3,6 +3,10 @@ require 'neography'
 require 'sinatra'
 require 'uri'
 
+require 'net-http-spy'
+# Net::HTTP.http_logger_options = {:body => true}    # just the body
+Net::HTTP.http_logger_options = {:verbose => true} # see everything
+
 def generate_text(length=8)
   chars = 'abcdefghjkmnpqrstuvwxyz'
   key = ''
@@ -11,10 +15,27 @@ def generate_text(length=8)
 end
 
 def create_rel(x,y,z)
-  [:create_relationship, "follows", "{#{x}}", "{#{y}}", {:weight => z}]
+  [:create_relationship, "knows", "{#{x}}", "{#{y}}", {:weight => z}]
 end
 
 def create_graph
+  neo = Neography::Rest.new
+  graph_exists = neo.get_node_properties(1)
+  return if graph_exists && graph_exists['name']
+
+  names = 5.times.collect{|x| generate_text}
+  commands = names.map{ |n| [:create_node, {"name" => n}]}
+  commands << create_rel(0, 1, 1)
+  commands << create_rel(0, 2, 2)
+  commands << create_rel(1, 2, 1)
+  commands << create_rel(2, 3, 1)
+  commands << create_rel(2, 4, 1)
+  commands << create_rel(3, 4, 1)
+  
+  batch_result = neo.batch *commands
+end
+
+def create_karate_graph
   neo = Neography::Rest.new
   graph_exists = neo.get_node_properties(1)
   return if graph_exists && graph_exists['name']
@@ -182,3 +203,9 @@ def create_graph
 end
  
 
+def create_line_graph
+   neo = Neography::Rest.new
+   lg = neo.execute_script("m = [:];
+                           g.E.sideEffect{g.addVertex([in: it.getInVertex().id, out: it.getOutVertex().id]) }
+   ")
+end
