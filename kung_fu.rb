@@ -205,7 +205,11 @@ end
 
 def create_line_graph
    neo = Neography::Rest.new
-   lg = neo.execute_script("m = [:];
-                           g.E.sideEffect{g.addVertex([in: it.getInVertex().id, out: it.getOutVertex().id]) }
-   ")
+   lg = neo.execute_script("g.E.gather.scatter.sideEffect{ 
+                              nn = g.addVertex([in: it.getInVertex().id, out: it.getOutVertex().id]); 
+                              g.addEdge(it.getInVertex(),nn,'in_line_graph',[node:it.getInVertex().id]);
+                              g.addEdge(it.getOutVertex(),nn,'in_line_graph',[node:it.getOutVertex().id]);
+                              }.gather.scatter.inV.outE('in_line_graph').inV.sideEffect{x=it}.
+                                in.out('in_line_graph').sideEffect{g.addEdge(x, it, 'related')};
+                              ")
 end
