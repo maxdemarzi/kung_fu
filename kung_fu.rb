@@ -210,6 +210,9 @@ def create_line_graph
                               g.addEdge(it.getInVertex(),nn,'in_line_graph',[node:it.getInVertex().id]);
                               g.addEdge(it.getOutVertex(),nn,'in_line_graph',[node:it.getOutVertex().id]);
                               }.gather.scatter.inV.outE('in_line_graph').inV.sideEffect{x=it}.
-                                in.out('in_line_graph').sideEffect{g.addEdge(x, it, 'related')};
+                                in.out('in_line_graph').sideEffect{
+                                  if (it.both('related').filter{it == x}.count() == 0) { 
+                                     g.addEdge(x, it, 'related')
+                                   }};
                               ")
 end
