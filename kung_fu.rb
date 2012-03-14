@@ -217,3 +217,17 @@ def create_line_graph
                                    }};
                               ")
 end
+
+def cluster_line_graph
+neo = Neography::Rest.new
+   lg = neo.execute_script("import edu.uci.ics.jung.algorithms.*
+                            to = new TinkerGraph()
+                            for (vertex in vertices) { 
+                              toVertex = to.addVertex(vertex.getId())
+                              ElementHelper.copyProperties(vertex, toVertex) 
+                            }
+                            for (edge in edges) { 
+                              toEdge = to.addEdge(edge.getId(), to.v(edge.getOutVertex().getId()), to.v(edge.getInVertex().getId()), edge.getLabel())
+                              ElementHelper.copyProperties(edge, toEdge) 
+                            }")
+end
