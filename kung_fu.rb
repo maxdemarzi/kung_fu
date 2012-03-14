@@ -26,7 +26,7 @@ def create_graph
   names = 5.times.collect{|x| generate_text}
   commands = names.map{ |n| [:create_node, {"name" => n}]}
   commands << create_rel(0, 1, 1)
-  commands << create_rel(0, 2, 2)
+  commands << create_rel(0, 2, 1) #weight was 2
   commands << create_rel(1, 2, 1)
   commands << create_rel(2, 3, 1)
   commands << create_rel(2, 4, 1)
@@ -202,17 +202,18 @@ def create_karate_graph
   batch_result = neo.batch *commands
 end
  
+#                                     g.addEdge(x, it, 'related', [weight:  it.weight.div(it.in.out('in_line_graph').count()).toFloat() ])
 
 def create_line_graph
    neo = Neography::Rest.new
    lg = neo.execute_script("g.E.gather.scatter.sideEffect{ 
-                              nn = g.addVertex([in: it.getInVertex().id, out: it.getOutVertex().id]); 
+                              nn = g.addVertex([in: it.getInVertex().id, out: it.getOutVertex().id, weight: it.weight]); 
                               g.addEdge(it.getInVertex(),nn,'in_line_graph',[node:it.getInVertex().id]);
                               g.addEdge(it.getOutVertex(),nn,'in_line_graph',[node:it.getOutVertex().id]);
                               }.gather.scatter.inV.outE('in_line_graph').inV.sideEffect{x=it}.
                                 in.out('in_line_graph').sideEffect{
                                   if (it.both('related').filter{it == x}.count() == 0) { 
-                                     g.addEdge(x, it, 'related')
+                                     g.addEdge(x, it, 'related', [weight:  it.weight.div(it.in.out('in_line_graph').count()).toFloat() ])
                                    }};
                               ")
 end
