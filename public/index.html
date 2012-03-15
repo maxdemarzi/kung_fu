@@ -2,14 +2,30 @@
 <html>
   <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8">
-    <title>Neo4j network partition by links example</title>
-    <script type="text/javascript" src="d3.min.js"></script>
-    <script type="text/javascript" src="d3.geom.min.js"></script>
-    <script type="text/javascript" src="d3.layout.min.js"></script>
+    <title>Neo4j and JUNG Clustering with D3.js example</title>
+    <script type="text/javascript" src="d3.v2.min.js"></script>
     <link type="text/css" rel="stylesheet" href="kung_fu.css"/>
   </head>
   <body>
-  	<div id="chart"></div>
+    <h1>Neo4j and JUNG Clustering with D3.js</h1>
+
+    <aside style="margin-top:80px;">
+    <p>Order: <select id="order">
+      <option value="name">by Name</option>
+      <option value="count">by Frequency</option>
+      <option value="group">by Cluster</option>
+    </select>
+
+    <p>This matrix visualizes Karate Club members.
+
+    <p>Each colored cell represents a relationship between two members; darker cells indicate stronger relationships.
+
+    <p>Use the drop-down menu to reorder the matrix and explore the data.
+
+    <p>Built with <a href="http://neo4j.org">Neo4j</a>, <a href="http://jung.sourceforge.net/index.html">JUNG</a> and <a href="http://mbostock.github.com/d3/">d3.js</a>.
+    <p>Visualization by <a href="http://bost.ocks.org/mike/">Mike Bostock</a></p>
+    </aside>
+
     <script type="text/javascript" src="kung_fu.js"></script>
   </body>
 </html>
