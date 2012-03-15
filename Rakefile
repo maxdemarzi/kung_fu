@@ -6,8 +6,8 @@ namespace :neo4j do
     create_graph
   end
 
-  task :create_random_graph do
-    create_random_graph
+  task :create_karate_graph do
+    create_karate_graph
   end
 
   task :create_line_graph do
