@@ -3,9 +3,8 @@ require 'neography'
 require 'sinatra'
 require 'uri'
 
-require 'net-http-spy'
-# Net::HTTP.http_logger_options = {:body => true}    # just the body
-Net::HTTP.http_logger_options = {:verbose => true} # see everything
+# require 'net-http-spy'
+# Net::HTTP.http_logger_options = {:verbose => true} # see everything
 
 def generate_text(length=8)
   chars = 'abcdefghjkmnpqrstuvwxyz'
@@ -18,7 +17,7 @@ def create_rel(x,y,z)
   [:create_relationship, "knows", "{#{x}}", "{#{y}}", {:weight => z}]
 end
 
-def create_graph
+def create_small_graph
   neo = Neography::Rest.new
   graph_exists = neo.get_node_properties(1)
   return if graph_exists && graph_exists['name']
@@ -26,7 +25,7 @@ def create_graph
   names = 5.times.collect{|x| generate_text}
   commands = names.map{ |n| [:create_node, {"name" => n}]}
   commands << create_rel(0, 1, 1)
-  commands << create_rel(0, 2, 1) #weight was 2
+  commands << create_rel(0, 2, 2) 
   commands << create_rel(1, 2, 1)
   commands << create_rel(2, 3, 1)
   commands << create_rel(2, 4, 1)
@@ -35,7 +34,7 @@ def create_graph
   batch_result = neo.batch *commands
 end
 
-def create_karate_graph
+def create_graph
   neo = Neography::Rest.new
   graph_exists = neo.get_node_properties(1)
   return if graph_exists && graph_exists['name']
@@ -201,9 +200,17 @@ def create_karate_graph
  
   batch_result = neo.batch *commands
 end
- 
-#                                     g.addEdge(x, it, 'related', [weight:  it.weight.div(it.in.out('in_line_graph').count()).toFloat() ])
 
+def test_jung
+  neo = Neography::Rest.new
+  tj = neo.execute_script("import edu.uci.ics.jung.algorithms.scoring.PageRank;
+                           j = new GraphJung(TinkerGraphFactory.createTinkerGraph());
+                           pr = new PageRank<Vertex,Edge>(j, 0.15d);
+                           pr.evaluate();
+                           j.getVertices().collect{ [it, pr.getVertexScore(it)] };")
+  puts tj.inspect
+end 
+ 
 def create_line_graph
    neo = Neography::Rest.new
    lg = neo.execute_script("g.E.gather.scatter.sideEffect{ 
@@ -218,16 +225,21 @@ def create_line_graph
                               ")
 end
 
-def cluster_line_graph
-neo = Neography::Rest.new
-   lg = neo.execute_script("import edu.uci.ics.jung.algorithms.*
-                            to = new TinkerGraph()
-                            for (vertex in vertices) { 
-                              toVertex = to.addVertex(vertex.getId())
-                              ElementHelper.copyProperties(vertex, toVertex) 
-                            }
-                            for (edge in edges) { 
-                              toEdge = to.addEdge(edge.getId(), to.v(edge.getOutVertex().getId()), to.v(edge.getInVertex().getId()), edge.getLabel())
-                              ElementHelper.copyProperties(edge, toEdge) 
-                            }")
+def cluster_graph
+  neo = Neography::Rest.new
+  lg = neo.execute_script("import edu.uci.ics.jung.algorithms.cluster.EdgeBetweennessClusterer;
+                            to = new TinkerGraph();
+                            g.V.sideEffect{toVertex = to.addVertex(it.getId()); 
+                                           ElementHelper.copyProperties(it, toVertex);
+                            }.iterate();   
+                            g.E.sideEffect{toEdge = to.addEdge(it.getId(), 
+                                                    to.v(it.getOutVertex().getId()), 
+                                                    to.v(it.getInVertex().getId()),
+                                                    it.getLabel());
+                                            ElementHelper.copyProperties(it, toEdge);
+                            }.iterate();
+                            ebc = new EdgeBetweennessClusterer(20);
+                            Set<Set<Vertex>> clusters = ebc.transform(new GraphJung(to));
+                            ")
+puts lg.inspect
 end
