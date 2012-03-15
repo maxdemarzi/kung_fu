@@ -6,6 +6,10 @@ namespace :neo4j do
     create_graph
   end
 
+  task :create_random_graph do
+    create_random_graph
+  end
+
   task :create_line_graph do
     create_line_graph
   end
@@ -13,9 +17,4 @@ namespace :neo4j do
   task :test_jung do
     test_jung
   end
-
-  task :cluster_graph do
-    cluster_graph
-  end
-
 end
