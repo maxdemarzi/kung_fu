@@ -1,22 +1,23 @@
 === Description
 
-Uncover community structure by partitioning the links of a network, allowing for overlapping nodes.
+Uncover community structure by clustering the nodes of a network
 
 === How To
 
-Follow along on {Chopping up a Karate Club}[http://wp.me/p26jdv-aa]
+Follow along on {JUNG in Neo4j}[http://wp.me/p26jdv-cg]
 
   git clone git@github.com:maxdemarzi/kung_fu.git
   cd kung_fu
   bundle install
   rake neo4j:install
+  cp jung_jars/*.jar neo4j/lib
   rake neo4j:start
   rake neo4j:create
   rackup
   
-Then visit http://localhost:9292/index.html to see the examples.
+Then visit http://localhost:9292/index.html to see the visualization.
 
-See an example running on heroku at {}[]
+See an example running on heroku at {http://kungfu.herokuapp.com/index.html}[http://kungfu.herokuapp.com/index.html]
 
 === Links
 
