@@ -13,7 +13,7 @@ var svg = d3.select("body").append("svg")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("cluster", function(cluster) {
+d3.json("cluster.json", function(cluster) {
   var matrix = [],
       nodes = cluster.nodes,
       n = nodes.length;
